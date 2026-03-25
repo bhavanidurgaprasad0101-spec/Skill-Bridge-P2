@@ -42,9 +42,16 @@ try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
     serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8'));
   } 
-  // Cloud Support: Raw JSON string
+  // Cloud Support: Raw JSON string or Base64 string (auto-detect)
   else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+    if (raw.startsWith('{')) {
+      // It's raw JSON
+      serviceAccount = JSON.parse(raw);
+    } else {
+      // It's Base64 encoded
+      serviceAccount = JSON.parse(Buffer.from(raw, 'base64').toString('utf-8'));
+    }
   } 
   // Local Dev Support: File
   else if (fs.existsSync('./firebase-service-account.json')) {
