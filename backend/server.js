@@ -10,7 +10,24 @@ import admin from 'firebase-admin';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
+    // Allow localhost, netlify, render, and vercel
+    const allowed = [
+      /localhost/,
+      /\.netlify\.app$/,
+      /\.onrender\.com$/,
+      /\.vercel\.app$/
+    ];
+    if (allowed.some(pattern => pattern.test(origin))) {
+      return callback(null, true);
+    }
+    return callback(null, true); // allow all for now
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
