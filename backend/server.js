@@ -68,10 +68,21 @@ try {
 // Helper to check if DB is ready
 const checkDb = (req, res, next) => {
   if (!db) {
-    return res.status(500).json({ error: 'Database not configured. Please add firebase-service-account.json' });
+    return res.status(500).json({ error: 'Database not connected. Firebase credentials may be missing on the server.' });
   }
   next();
 };
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    server: 'Skill Bridge Backend',
+    database: db ? 'connected' : 'NOT connected',
+    geminiKey: process.env.GEMINI_API_KEY ? 'configured' : 'MISSING',
+    firebaseEnv: process.env.FIREBASE_SERVICE_ACCOUNT ? 'configured' : (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 ? 'configured (base64)' : 'MISSING')
+  });
+});
 
 // ---- Gemini AI Setup ----
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -118,7 +129,7 @@ app.post('/api/auth/register', checkDb, async (req, res) => {
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
     console.error('Register error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Registration failed: ' + err.message });
   }
 });
 
