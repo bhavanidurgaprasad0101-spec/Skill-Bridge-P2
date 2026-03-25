@@ -40,7 +40,7 @@ try {
 
   // Cloud Support: Check environment variable first (Base64 encoded JSON recommended)
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('ascii'));
+    serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8'));
   } 
   // Cloud Support: Raw JSON string
   else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
